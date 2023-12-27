@@ -16,9 +16,11 @@ Font AddNewCodepointsToFont(Font font, char *filePath, char *new_chars) {
   int newCount = font.glyphCount + codepointCount;
 
   int *newCodepoints = MemAlloc(newCount * sizeof(int));
-  for (int i=0; i<newCount; i++) {
-    if (i<font.glyphCount) newCodepoints[i] = font.glyphs[i].value;
-    else newCodepoints[i] = codepoints[i-font.glyphCount];
+  for (int i=0; i<font.glyphCount; i++) {
+    newCodepoints[i] = font.glyphs[i].value;
+  }
+  for (int i=font.glyphCount; i<newCount; i++) {
+    newCodepoints[i] = codepoints[i-font.glyphCount];
   }
 
   Font newFont = LoadFontEx(filePath, FONTSIZE, newCodepoints, newCount);
