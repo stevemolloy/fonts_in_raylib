@@ -9,7 +9,7 @@
 #define FONTSIZE 64
 #define BACKGROUNDCOLOUR CLITERAL(Color){ 30, 30, 30, 255 }
 
-Font AddNewCodepointsToFont(Font font, char *filePath, char *new_chars) {
+Font AddNewCharsToFont(Font font, char *filePath, char *new_chars) {
   int codepointCount = 0;
   int *codepoints = LoadCodepoints(new_chars, &codepointCount);
 
@@ -38,7 +38,7 @@ int main(void) {
 
   char *text = "abcdefghijklmnopqrstuvwxyzåäö";
 
-  Font new_font = AddNewCodepointsToFont(font, font_file_path, "öäå");
+  Font new_font = AddNewCharsToFont(font, font_file_path, "öäå");
 
   while (!WindowShouldClose()) {
     BeginDrawing();
