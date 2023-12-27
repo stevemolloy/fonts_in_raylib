@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "raylib.h"
 
@@ -8,18 +9,47 @@
 #define FONTSIZE 64
 #define BACKGROUNDCOLOUR CLITERAL(Color){ 30, 30, 30, 255 }
 
+Font AddNewCodepointsToFont(Font font, char *filePath, char *new_chars) {
+  int codepointCount = 0;
+  int *codepoints = LoadCodepoints(new_chars, &codepointCount);
+
+  int newCount = font.glyphCount + codepointCount;
+
+  int *newCodepoints = MemAlloc(newCount * sizeof(int));
+  for (int i=0; i<newCount; i++) {
+    if (i<font.glyphCount) newCodepoints[i] = font.glyphs[i].value;
+    else newCodepoints[i] = codepoints[i-font.glyphCount];
+  }
+
+  Font newFont = LoadFontEx(filePath, FONTSIZE, newCodepoints, newCount);
+
+  MemFree(newCodepoints);
+
+  return newFont;
+}
+
 int main(void) {
   InitWindow(WIDTH, HEIGHT, "Testing fonts");
 
-  char *text = "Hello world!";
-  Font font = LoadFontEx("fonts/Alegreya-VariableFont_wght.ttf", FONTSIZE, NULL, 0);
+  char *font_file_path = "fonts/Alegreya-VariableFont_wght.ttf";
+  Font font = LoadFontEx(font_file_path, FONTSIZE, NULL, 0);
+
+  char *text = "abcdefghijklmnopqrstuvwxyzåäö";
+
+  Font new_font = AddNewCodepointsToFont(font, font_file_path, "öäå");
 
   while (!WindowShouldClose()) {
     BeginDrawing();
     ClearBackground(BACKGROUNDCOLOUR);
-    Vector2 text_size = MeasureTextEx(font, text, FONTSIZE, 0);
-    Vector2 centre = { .x = WIDTH/2.0 - text_size.x/2.0, .y = HEIGHT/2.0 - text_size.y/2.0 };
-    DrawTextEx(font, text, centre, FONTSIZE, 0, YELLOW);
+
+    Vector2 broken_text_size = MeasureTextEx(font, text, FONTSIZE, 0.5);
+    Vector2 broken_centre = { .x = WIDTH/2.0 - broken_text_size.x/2.0, .y = HEIGHT/2.0 - 3*broken_text_size.y/2.0 };
+    DrawTextEx(font, text, broken_centre, FONTSIZE, 0, YELLOW);
+
+    Vector2 fixed_text_size = MeasureTextEx(new_font, text, FONTSIZE, 0.5);
+    Vector2 fixed_centre = { .x = WIDTH/2.0 - fixed_text_size.x/2.0, .y = HEIGHT/2.0 - fixed_text_size.y/2.0 };
+    DrawTextEx(new_font, text, fixed_centre, FONTSIZE, 0, YELLOW);
+
     EndDrawing();
   }
 
