@@ -32,12 +32,14 @@ void AddNewCharsToFontEx(Font *font, const char *fileName, int fontSize, char *n
 int main(void) {
   InitWindow(WIDTH, HEIGHT, "Testing fonts");
 
+  SetTextLineSpacing(FONTSIZE);
+
   char *font_file_path = "fonts/Alegreya-VariableFont_wght.ttf";
   Font font = LoadFontEx(font_file_path, FONTSIZE, NULL, 0);
 
-  char *text = "abcdefghijklmnopqrstuvwxyzåäö";
+  char *text = "• A bulleted list\n• To demo the new function";
 
-  AddNewCharsToFontEx(&font, font_file_path, FONTSIZE, "öäå");
+  AddNewCharsToFontEx(&font, font_file_path, FONTSIZE, "•");
 
   while (!WindowShouldClose()) {
     BeginDrawing();
@@ -45,7 +47,7 @@ int main(void) {
 
     Vector2 text_size = MeasureTextEx(font, text, FONTSIZE, 0.5);
     Vector2 centre = { .x = WIDTH/2.0 - text_size.x/2.0, .y = HEIGHT/2.0 - text_size.y/2.0 };
-    DrawTextEx(font, text, centre, FONTSIZE, 0, YELLOW);
+    DrawTextEx(font, text, centre, FONTSIZE, 0.5, YELLOW);
 
     EndDrawing();
   }
