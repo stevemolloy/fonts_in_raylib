@@ -9,51 +9,52 @@
 #define FONTSIZE 64
 #define BACKGROUNDCOLOUR CLITERAL(Color){ 30, 30, 30, 255 }
 
+// Reload the font after adding the new characters to the list of desired characters
 void AddNewCharsToFontEx(Font *font, const char *fileName, int fontSize, char *newChars)
 {
-  // Get the codepoints of the newChars
-  int codepointCount = 0;
-  int *codepoints = LoadCodepoints(newChars, &codepointCount);
+    // Get the codepoints of the newChars
+    int codepointCount = 0;
+    int *codepoints = LoadCodepoints(newChars, &codepointCount);
 
-  // Maximum value of the number of codepoints in the updated Font
-  int newCount = font->glyphCount + codepointCount;
+    // Maximum value of the number of codepoints in the updated Font
+    int newCount = font->glyphCount + codepointCount;
 
-  // Allocate space for the new codepoints and populate it
-  int *newCodepoints = MemAlloc(newCount * sizeof(int));
+    // Allocate space for the new codepoints and populate it
+    int *newCodepoints = MemAlloc(newCount * sizeof(int));
 
-  int codepointCountWithNoDupes = 0;  // We don't need to assign chars that already exist in the Font
-  for (int i = 0; i < font->glyphCount; i++)
-  {
-    newCodepoints[i] = font->glyphs[i].value;
-    codepointCountWithNoDupes += 1;
-  }
-
-  for (int i = font->glyphCount; i < newCount; i++)
-  {
-    bool codepointIsUnique = true;
-    int cp = codepoints[i-font->glyphCount];
-
-    // This loop checks for the existence for the existence of the newChars in the input Font
-    for (int j = 0; j < font->glyphCount; j++)
+    int codepointCountWithNoDupes = 0;  // We don't need to assign chars that already exist in the Font
+    for (int i = 0; i < font->glyphCount; i++)
     {
-      if (cp == font->glyphs[j].value)
-      {
-        codepointIsUnique = false;
-        break;
-      }
+        newCodepoints[i] = font->glyphs[i].value;
+        codepointCountWithNoDupes += 1;
     }
-    if (codepointIsUnique)
+
+    for (int i = font->glyphCount; i < newCount; i++)
     {
-      newCodepoints[codepointCountWithNoDupes] = cp;
-      codepointCountWithNoDupes += 1;
+        bool codepointIsUnique = true;
+        int cp = codepoints[i-font->glyphCount];
+
+        // This loop checks for the existence of the newChars in the input Font, and skips them if necessary
+        for (int j = 0; j < font->glyphCount; j++)
+        {
+            if (cp == font->glyphs[j].value)
+            {
+              codepointIsUnique = false;
+              break;
+            }
+        }
+        if (codepointIsUnique)
+        {
+            newCodepoints[codepointCountWithNoDupes] = cp;
+            codepointCountWithNoDupes += 1;
+        }
     }
-  }
 
-  // Unload the Font and then reassign the newly built Font
-  UnloadFont(*font);
-  *font = LoadFontEx(fileName, fontSize, newCodepoints, codepointCountWithNoDupes);
+    // Unload the Font and then reassign the newly built Font
+    UnloadFont(*font);
+    *font = LoadFontEx(fileName, fontSize, newCodepoints, codepointCountWithNoDupes);
 
-  MemFree(newCodepoints);
+    MemFree(newCodepoints);
 }
 
 int main(void) {
